@@ -1,0 +1,198 @@
+# name: Retail_Sales
+version: 1.1
+comment: 'Sample retail semantic layer over the Databricks retail_dw warehouse: sales and inventory analytics with conformed date, product, store and customer dimensions.'
+source: retail_dw.core.fact_sales
+joins:
+- name: occurs_on
+  source: retail_dw.core.dim_date
+  using:
+  - Date Key
+- name: records_sales_at
+  source: retail_dw.core.dim_store
+  using:
+  - Store Key
+- name: purchases
+  source: retail_dw.core.dim_customer
+  using:
+  - Customer Key
+- name: is_sold_as
+  source: retail_dw.core.dim_product
+  using:
+  - Product Key
+fields:
+- name: Customer Key
+  expr: customer_key
+  comment: FK to dim_customer. Null for anonymous sales.
+- name: Date Key
+  expr: date_key
+  comment: FK to dim_date.
+- name: Discount Amount
+  expr: discount_amount
+  comment: Discount applied in USD.
+- name: Gross Sales Amount
+  expr: gross_amount
+  comment: Amount before discounts in USD.
+  synonyms:
+  - gross revenue
+- name: Net Sales Amount
+  expr: net_amount
+  comment: Amount after discounts in USD.
+  synonyms:
+  - revenue
+  - net revenue
+- name: Product Key
+  expr: product_key
+  comment: FK to dim_product.
+- name: Sales Line ID
+  expr: sales_line_id
+  comment: Surrogate primary key for the sales line.
+- name: Store Key
+  expr: store_key
+  comment: FK to dim_store.
+- name: Transaction ID
+  expr: transaction_id
+  comment: Point-of-sale transaction identifier.
+- name: Units Sold
+  expr: quantity
+  comment: Units sold.
+  synonyms:
+  - quantity
+  - units
+- name: Calendar Date
+  expr: occurs_on.full_date
+  comment: Calendar date.
+- name: Date Key
+  expr: occurs_on.date_key
+  comment: Surrogate key in YYYYMMDD format.
+- name: Day of Week
+  expr: occurs_on.day_of_week
+  comment: Weekday name.
+- name: Is Weekend
+  expr: occurs_on.is_weekend
+  comment: True when the day falls on a weekend.
+- name: Month
+  expr: occurs_on.month_name
+  comment: Month name.
+- name: Quarter Number
+  expr: occurs_on.quarter_number
+  comment: Calendar quarter (1-4).
+- name: Year
+  expr: occurs_on.year_number
+  comment: Calendar year.
+- name: City
+  expr: records_sales_at.city
+  comment: City of the store.
+- name: Country Code
+  expr: records_sales_at.country_code
+  comment: ISO country code.
+- name: Opened Date
+  expr: records_sales_at.opened_date
+  comment: Date the store opened.
+- name: Region
+  expr: records_sales_at.region_name
+  comment: Sales region.
+  synonyms:
+  - sales region
+- name: State Code
+  expr: records_sales_at.state_code
+  comment: State or province code.
+- name: Store Code
+  expr: records_sales_at.store_code
+  comment: Business store code.
+- name: Store Key
+  expr: records_sales_at.store_key
+  comment: Surrogate key.
+- name: Store Name
+  expr: records_sales_at.store_name
+  comment: Store name.
+- name: Birth Date
+  expr: purchases.birth_date
+  comment: Date of birth. PII.
+- name: City
+  expr: purchases.city
+  comment: Customer city.
+- name: Country Code
+  expr: purchases.country_code
+  comment: ISO country code.
+- name: Customer ID
+  expr: purchases.customer_id
+  comment: Business key from the CRM.
+- name: Customer Key
+  expr: purchases.customer_key
+  comment: Surrogate key.
+- name: Customer Segment
+  expr: purchases.customer_segment
+  comment: Marketing segment such as Consumer, Business or Premium.
+- name: Email Address
+  expr: purchases.email_address
+  comment: Customer email. PII.
+- name: First Name
+  expr: purchases.first_name
+  comment: Customer first name. PII.
+- name: Last Name
+  expr: purchases.last_name
+  comment: Customer last name. PII.
+- name: Phone Number
+  expr: purchases.phone_number
+  comment: Customer phone. PII.
+- name: Brand
+  expr: is_sold_as.brand_name
+  comment: Brand name.
+- name: Category
+  expr: is_sold_as.category_name
+  comment: Top-level product category.
+  synonyms:
+  - product category
+- name: Is Current
+  expr: is_sold_as.is_current
+  comment: True for the current version of the product.
+- name: List Price
+  expr: is_sold_as.unit_price
+  comment: List price in USD.
+- name: Product ID
+  expr: is_sold_as.product_id
+  comment: Business key from the ERP system.
+- name: Product Key
+  expr: is_sold_as.product_key
+  comment: Surrogate key.
+- name: Product Name
+  expr: is_sold_as.product_name
+  comment: Display name of the product.
+  synonyms:
+  - item
+  - SKU name
+- name: Subcategory Name
+  expr: is_sold_as.subcategory_name
+  comment: Product subcategory.
+- name: Unit Cost
+  expr: is_sold_as.unit_cost
+  comment: Standard unit cost in USD.
+- name: Valid From
+  expr: is_sold_as.valid_from
+  comment: Start of the SCD2 validity window.
+- name: Valid To
+  expr: is_sold_as.valid_to
+  comment: End of the SCD2 validity window. Null for the current row.
+measures:
+- name: Average Order Value
+  expr: SUM(Sales.net_amount) / NULLIF(COUNT(DISTINCT Sales.transaction_id), 0)
+  synonyms:
+  - AOV
+  - average basket
+- name: Total Net Sales
+  expr: SUM(Sales.net_amount)
+  synonyms:
+  - revenue
+  - net revenue
+  - sales
+- name: Total Units Sold
+  expr: SUM(Sales.quantity)
+  synonyms:
+  - units
+  - volume
+- name: Transaction Count
+  expr: COUNT(DISTINCT Sales.transaction_id)
+  synonyms:
+  - orders
+  - baskets
+  - tickets
