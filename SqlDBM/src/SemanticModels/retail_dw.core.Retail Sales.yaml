@@ -1,0 +1,538 @@
+version: 0.2.0.dev0
+name: Retail_Sales
+description: 'Sample retail semantic layer over the Databricks retail_dw warehouse: sales and inventory analytics with conformed date, product, store and customer dimensions.'
+datasets:
+- name: Customer_Dimension
+  source: retail_dw.core.dim_customer
+  description: Customer master.
+  primary_key:
+  - Customer Key
+  fields:
+  - name: City
+    description: Customer city.
+    expression:
+      dialects:
+      - dialect: DATABRICKS
+        expression: city
+    datatype: String
+    dimension:
+      is_time: false
+  - name: Country Code
+    description: ISO country code.
+    expression:
+      dialects:
+      - dialect: DATABRICKS
+        expression: country_code
+    datatype: String
+    dimension:
+      is_time: false
+  - name: Customer ID
+    description: Business key from the CRM.
+    expression:
+      dialects:
+      - dialect: DATABRICKS
+        expression: customer_id
+    datatype: String
+    dimension:
+      is_time: false
+  - name: Customer Segment
+    description: Marketing segment such as Consumer, Business or Premium.
+    expression:
+      dialects:
+      - dialect: DATABRICKS
+        expression: customer_segment
+    datatype: String
+    dimension:
+      is_time: false
+  - name: Email Address
+    description: Customer email. PII.
+    expression:
+      dialects:
+      - dialect: DATABRICKS
+        expression: email_address
+    datatype: String
+    dimension:
+      is_time: false
+  - name: First Name
+    description: Customer first name. PII.
+    expression:
+      dialects:
+      - dialect: DATABRICKS
+        expression: first_name
+    datatype: String
+    dimension:
+      is_time: false
+  - name: Last Name
+    description: Customer last name. PII.
+    expression:
+      dialects:
+      - dialect: DATABRICKS
+        expression: last_name
+    datatype: String
+    dimension:
+      is_time: false
+  - name: Phone Number
+    description: Customer phone. PII.
+    expression:
+      dialects:
+      - dialect: DATABRICKS
+        expression: phone_number
+    datatype: String
+    dimension:
+      is_time: false
+  - name: Birth Date
+    description: Date of birth. PII.
+    expression:
+      dialects:
+      - dialect: DATABRICKS
+        expression: birth_date
+    datatype: Date
+    dimension:
+      is_time: true
+  - name: Customer Key
+    description: Surrogate key.
+    expression:
+      dialects:
+      - dialect: DATABRICKS
+        expression: customer_key
+    datatype: Integer
+- name: Date_Dimension
+  source: retail_dw.core.dim_date
+  description: Calendar date dimension.
+  primary_key:
+  - Date Key
+  fields:
+  - name: Day of Week
+    description: Weekday name.
+    expression:
+      dialects:
+      - dialect: DATABRICKS
+        expression: day_of_week
+    datatype: String
+    dimension:
+      is_time: false
+  - name: Is Weekend
+    description: True when the day falls on a weekend.
+    expression:
+      dialects:
+      - dialect: DATABRICKS
+        expression: is_weekend
+    datatype: Boolean
+    dimension:
+      is_time: false
+  - name: Month
+    description: Month name.
+    expression:
+      dialects:
+      - dialect: DATABRICKS
+        expression: month_name
+    datatype: String
+    dimension:
+      is_time: false
+  - name: Calendar Date
+    description: Calendar date.
+    expression:
+      dialects:
+      - dialect: DATABRICKS
+        expression: full_date
+    datatype: Date
+    dimension:
+      is_time: true
+  - name: Year
+    description: Calendar year.
+    expression:
+      dialects:
+      - dialect: DATABRICKS
+        expression: year_number
+    datatype: Integer
+    dimension:
+      is_time: true
+  - name: Date Key
+    description: Surrogate key in YYYYMMDD format.
+    expression:
+      dialects:
+      - dialect: DATABRICKS
+        expression: date_key
+    datatype: Integer
+  - name: Quarter Number
+    description: Calendar quarter (1-4).
+    expression:
+      dialects:
+      - dialect: DATABRICKS
+        expression: quarter_number
+    datatype: Integer
+- name: Product_Dimension
+  source: retail_dw.core.dim_product
+  description: Product catalog with category hierarchy.
+  primary_key:
+  - Product Key
+  fields:
+  - name: Brand
+    description: Brand name.
+    expression:
+      dialects:
+      - dialect: DATABRICKS
+        expression: brand_name
+    datatype: String
+    dimension:
+      is_time: false
+  - name: Category
+    description: Top-level product category.
+    expression:
+      dialects:
+      - dialect: DATABRICKS
+        expression: category_name
+    datatype: String
+    dimension:
+      is_time: false
+    ai_context:
+      synonyms:
+      - product category
+  - name: Is Current
+    description: True for the current version of the product.
+    expression:
+      dialects:
+      - dialect: DATABRICKS
+        expression: is_current
+    datatype: Boolean
+    dimension:
+      is_time: false
+  - name: Product ID
+    description: Business key from the ERP system.
+    expression:
+      dialects:
+      - dialect: DATABRICKS
+        expression: product_id
+    datatype: String
+    dimension:
+      is_time: false
+  - name: Product Name
+    description: Display name of the product.
+    expression:
+      dialects:
+      - dialect: DATABRICKS
+        expression: product_name
+    datatype: String
+    dimension:
+      is_time: false
+    ai_context:
+      synonyms:
+      - item
+      - SKU name
+  - name: Subcategory Name
+    description: Product subcategory.
+    expression:
+      dialects:
+      - dialect: DATABRICKS
+        expression: subcategory_name
+    datatype: String
+    dimension:
+      is_time: false
+  - name: Valid From
+    description: Start of the SCD2 validity window.
+    expression:
+      dialects:
+      - dialect: DATABRICKS
+        expression: valid_from
+    datatype: DateTimeTz
+    dimension:
+      is_time: true
+  - name: Valid To
+    description: End of the SCD2 validity window. Null for the current row.
+    expression:
+      dialects:
+      - dialect: DATABRICKS
+        expression: valid_to
+    datatype: DateTimeTz
+    dimension:
+      is_time: true
+  - name: List Price
+    description: List price in USD.
+    expression:
+      dialects:
+      - dialect: DATABRICKS
+        expression: unit_price
+    datatype: Decimal
+  - name: Product Key
+    description: Surrogate key.
+    expression:
+      dialects:
+      - dialect: DATABRICKS
+        expression: product_key
+    datatype: Integer
+  - name: Unit Cost
+    description: Standard unit cost in USD.
+    expression:
+      dialects:
+      - dialect: DATABRICKS
+        expression: unit_cost
+    datatype: Decimal
+- name: Sales_Fact
+  source: retail_dw.core.fact_sales
+  description: Sales transactions at product-line grain.
+  primary_key:
+  - Sales Line ID
+  unique_keys:
+  -
+    - Product Key
+  -
+    - Store Key
+  -
+    - Customer Key
+  fields:
+  - name: Transaction ID
+    description: Point-of-sale transaction identifier.
+    expression:
+      dialects:
+      - dialect: DATABRICKS
+        expression: transaction_id
+    datatype: String
+    dimension:
+      is_time: false
+  - name: Customer Key
+    description: FK to dim_customer. Null for anonymous sales.
+    expression:
+      dialects:
+      - dialect: DATABRICKS
+        expression: customer_key
+    datatype: Integer
+  - name: Date Key
+    description: FK to dim_date.
+    expression:
+      dialects:
+      - dialect: DATABRICKS
+        expression: date_key
+    datatype: Integer
+  - name: Discount Amount
+    description: Discount applied in USD.
+    expression:
+      dialects:
+      - dialect: DATABRICKS
+        expression: discount_amount
+    datatype: Decimal
+  - name: Gross Sales Amount
+    description: Amount before discounts in USD.
+    expression:
+      dialects:
+      - dialect: DATABRICKS
+        expression: gross_amount
+    datatype: Decimal
+    ai_context:
+      synonyms:
+      - gross revenue
+  - name: Net Sales Amount
+    description: Amount after discounts in USD.
+    expression:
+      dialects:
+      - dialect: DATABRICKS
+        expression: net_amount
+    datatype: Decimal
+    ai_context:
+      synonyms:
+      - revenue
+      - net revenue
+  - name: Product Key
+    description: FK to dim_product.
+    expression:
+      dialects:
+      - dialect: DATABRICKS
+        expression: product_key
+    datatype: Integer
+  - name: Sales Line ID
+    description: Surrogate primary key for the sales line.
+    expression:
+      dialects:
+      - dialect: DATABRICKS
+        expression: sales_line_id
+    datatype: Integer
+  - name: Store Key
+    description: FK to dim_store.
+    expression:
+      dialects:
+      - dialect: DATABRICKS
+        expression: store_key
+    datatype: Integer
+  - name: Units Sold
+    description: Units sold.
+    expression:
+      dialects:
+      - dialect: DATABRICKS
+        expression: quantity
+    datatype: Integer
+    ai_context:
+      synonyms:
+      - quantity
+      - units
+- name: Store_Dimension
+  source: retail_dw.core.dim_store
+  description: Physical store locations.
+  primary_key:
+  - Store Key
+  fields:
+  - name: City
+    description: City of the store.
+    expression:
+      dialects:
+      - dialect: DATABRICKS
+        expression: city
+    datatype: String
+    dimension:
+      is_time: false
+  - name: Country Code
+    description: ISO country code.
+    expression:
+      dialects:
+      - dialect: DATABRICKS
+        expression: country_code
+    datatype: String
+    dimension:
+      is_time: false
+  - name: Region
+    description: Sales region.
+    expression:
+      dialects:
+      - dialect: DATABRICKS
+        expression: region_name
+    datatype: String
+    dimension:
+      is_time: false
+    ai_context:
+      synonyms:
+      - sales region
+  - name: State Code
+    description: State or province code.
+    expression:
+      dialects:
+      - dialect: DATABRICKS
+        expression: state_code
+    datatype: String
+    dimension:
+      is_time: false
+  - name: Store Code
+    description: Business store code.
+    expression:
+      dialects:
+      - dialect: DATABRICKS
+        expression: store_code
+    datatype: String
+    dimension:
+      is_time: false
+  - name: Store Name
+    description: Store name.
+    expression:
+      dialects:
+      - dialect: DATABRICKS
+        expression: store_name
+    datatype: String
+    dimension:
+      is_time: false
+  - name: Opened Date
+    description: Date the store opened.
+    expression:
+      dialects:
+      - dialect: DATABRICKS
+        expression: opened_date
+    datatype: Date
+    dimension:
+      is_time: true
+  - name: Store Key
+    description: Surrogate key.
+    expression:
+      dialects:
+      - dialect: DATABRICKS
+        expression: store_key
+    datatype: Integer
+relationships:
+- name: occurs_on
+  from: Sales_Fact
+  to: Date_Dimension
+  from_columns:
+  - Date Key
+  to_columns:
+  - Date Key
+- name: records_sales_at
+  from: Sales_Fact
+  to: Store_Dimension
+  from_columns:
+  - Store Key
+  to_columns:
+  - Store Key
+- name: purchases
+  from: Sales_Fact
+  to: Customer_Dimension
+  from_columns:
+  - Customer Key
+  to_columns:
+  - Customer Key
+- name: is_sold_as
+  from: Sales_Fact
+  to: Product_Dimension
+  from_columns:
+  - Product Key
+  to_columns:
+  - Product Key
+- name: sales_to_product
+  from: Sales_Fact
+  to: Product_Dimension
+  from_columns:
+  - Product Key
+  to_columns:
+  - Product Key
+- name: sales_to_store
+  from: Sales_Fact
+  to: Store_Dimension
+  from_columns:
+  - Store Key
+  to_columns:
+  - Store Key
+- name: sales_to_customer
+  from: Sales_Fact
+  to: Customer_Dimension
+  from_columns:
+  - Customer Key
+  to_columns:
+  - Customer Key
+metrics:
+- name: Average Order Value
+  expression:
+    dialects:
+    - dialect: DATABRICKS
+      expression: SUM(Sales.net_amount) / NULLIF(COUNT(DISTINCT Sales.transaction_id), 0)
+  ai_context:
+    synonyms:
+    - AOV
+    - average basket
+- name: Total Net Sales
+  expression:
+    dialects:
+    - dialect: DATABRICKS
+      expression: SUM(Sales.net_amount)
+  ai_context:
+    synonyms:
+    - revenue
+    - net revenue
+    - sales
+- name: Total Units Sold
+  expression:
+    dialects:
+    - dialect: DATABRICKS
+      expression: SUM(Sales.quantity)
+  ai_context:
+    synonyms:
+    - units
+    - volume
+- name: Transaction Count
+  expression:
+    dialects:
+    - dialect: DATABRICKS
+      expression: COUNT(DISTINCT Sales.transaction_id)
+  ai_context:
+    synonyms:
+    - orders
+    - baskets
+    - tickets
+ai_context:
+  instructions: Use Databricks SQL. Join facts to dimensions on surrogate keys. Filter dim_product to is_current = true unless a historical view is requested. Do not expose PII columns from Customer (names, email, phone, birth date) in aggregated or ad hoc output.
+  examples:
+  - What is net sales by product category for 2024?
+  - What is the average order value by region?
